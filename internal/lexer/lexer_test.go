@@ -8,7 +8,6 @@ import (
 )
 
 func TestNextToken1(t *testing.T) {
-	t.SkipNow()
 	text := `let five = 5;
 	let 🐒 = 10;
 
@@ -16,11 +15,11 @@ func TestNextToken1(t *testing.T) {
 		x + y;
 	};
 
-	let lettuce = add(five, 🐒);
+	let lett_uce123 = add(five, 🐒);
 	!-/*5;
 	5 < 10 > 5;
 
-	if (5 < 10) {
+	if (5 < 10.02) {
 		return true;
 	} else {
 		return false;
@@ -38,17 +37,17 @@ func TestNextToken1(t *testing.T) {
 	}{
 		{token.LET, "let"},
 		{token.IDENT, "five"},
-		{token.ASSIGN, "="},
-		{token.INT, "5"},
+		{token.DOUBLE_EQ, "="},
+		{token.NUMBER, "5"},
 		{token.SEMICOLON, ";"},
 		{token.LET, "let"},
 		{token.IDENT, "🐒"},
-		{token.ASSIGN, "="},
-		{token.INT, "10"},
+		{token.DOUBLE_EQ, "="},
+		{token.NUMBER, "10"},
 		{token.SEMICOLON, ";"},
 		{token.LET, "let"},
 		{token.IDENT, "add"},
-		{token.ASSIGN, "="},
+		{token.DOUBLE_EQ, "="},
 		{token.FUNCTION, "fn"},
 		{token.LPAREN, "("},
 		{token.IDENT, "x"},
@@ -63,8 +62,8 @@ func TestNextToken1(t *testing.T) {
 		{token.RBRACE, "}"},
 		{token.SEMICOLON, ";"},
 		{token.LET, "let"},
-		{token.IDENT, "lettuce"},
-		{token.ASSIGN, "="},
+		{token.IDENT, "lett_uce123"},
+		{token.DOUBLE_EQ, "="},
 		{token.IDENT, "add"},
 		{token.LPAREN, "("},
 		{token.IDENT, "five"},
@@ -76,19 +75,19 @@ func TestNextToken1(t *testing.T) {
 		{token.MINUS, "-"},
 		{token.SLASH, "/"},
 		{token.ASTERISK, "*"},
-		{token.INT, "5"},
+		{token.NUMBER, "5"},
 		{token.SEMICOLON, ";"},
-		{token.INT, "5"},
+		{token.NUMBER, "5"},
 		{token.LT, "<"},
-		{token.INT, "10"},
+		{token.NUMBER, "10"},
 		{token.GT, ">"},
-		{token.INT, "5"},
+		{token.NUMBER, "5"},
 		{token.SEMICOLON, ";"},
 		{token.IF, "if"},
 		{token.LPAREN, "("},
-		{token.INT, "5"},
+		{token.NUMBER, "5"},
 		{token.LT, "<"},
-		{token.INT, "10"},
+		{token.NUMBER, "10.02"},
 		{token.RPAREN, ")"},
 		{token.LBRACE, "{"},
 		{token.RETURN, "return"},
@@ -101,15 +100,15 @@ func TestNextToken1(t *testing.T) {
 		{token.FALSE, "false"},
 		{token.SEMICOLON, ";"},
 		{token.RBRACE, "}"},
-		{token.INT, "10"},
+		{token.NUMBER, "10"},
 		{token.EQ, "=="},
-		{token.INT, "10"},
+		{token.NUMBER, "10"},
 		{token.SEMICOLON, ";"},
-		{token.INT, "10"},
+		{token.NUMBER, "10"},
 		{token.NOT_EQ, "!="},
-		{token.INT, "9"},
+		{token.NUMBER, "9"},
 		{token.SEMICOLON, ";"},
-		{token.EOF, ""},
+		{token.EOF, "\x00"},
 	}
 	for _, tt := range tests {
 		tok := lexer.NextToken()
@@ -122,7 +121,7 @@ func TestNextToken1(t *testing.T) {
 func TestNextToken(t *testing.T) {
 	text := `
 	()=
-	===  
+	===  my🐒_monkey
 	`
 
 	lexer := New([]byte(text))
@@ -133,10 +132,11 @@ func TestNextToken(t *testing.T) {
 	}{
 		{token.LPAREN, "("},
 		{token.RPAREN, ")"},
-		{token.ASSIGN, "="},
+		{token.DOUBLE_EQ, "="},
 		{token.EQ, "=="},
-		{token.ASSIGN, "="},
-		{token.EOF, ""},
+		{token.DOUBLE_EQ, "="},
+		{token.IDENT, "my🐒_monkey"},
+		{token.EOF, "\x00"},
 	}
 	for _, tt := range tests {
 		tok := lexer.NextToken()

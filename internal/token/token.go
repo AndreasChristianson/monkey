@@ -14,15 +14,17 @@ const (
 	RBRACE    = "RBRACE"
 	LET       = "LET"
 	IDENT     = "IDENT"
-	ASSIGN    = "ASSIGN"
-	INT       = "INT"
+	DOUBLE_EQ = "DOUBLE_EQ"
+	NUMBER    = "NUMBER"
 	SEMICOLON = "SEMICOLON"
+	COLON     = "COLON"
 	FUNCTION  = "FUNCTION"
 	COMMA     = "COMMA"
 	PLUS      = "PLUS"
-	BANG      = "BANG"
 	MINUS     = "MINUS"
+	SLASH     = "SLASH"
 	ASTERISK  = "ASTERISK"
+	BANG      = "BANG"
 	LT        = "LT"
 	GT        = "GT"
 	RETURN    = "RETURN"
@@ -33,5 +35,15 @@ const (
 	NOT_EQ    = "NOT_EQ"
 	TRUE      = "TRUE"
 	FALSE     = "FALSE"
-	SLASH     = "SLASH"
+	INVALID   = "INVALID"
 )
+
+var Keywords = map[string]string{
+	"let":    LET,
+	"if":     IF,
+	"true":   TRUE,
+	"false":  FALSE,
+	"fn":     FUNCTION,
+	"return": RETURN,
+	"else":   ELSE,
+}
