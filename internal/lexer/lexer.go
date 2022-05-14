@@ -34,70 +34,42 @@ func (lexer *Lexer) NextToken() token.Token {
 
 	r := lexer.readRune()
 	tok.Literal = string(r)
-	switch r {
-	case 0:
+	if r == 0 {
 		tok.TokenType = token.EOF
-	case '(':
-		tok.TokenType = token.LPAREN
-	case ')':
-		tok.TokenType = token.RPAREN
-	case '{':
-		tok.TokenType = token.LBRACE
-	case '}':
-		tok.TokenType = token.RBRACE
-	case ';':
-		tok.TokenType = token.SEMICOLON
-	case ':':
-		tok.TokenType = token.COLON
-	case ',':
-		tok.TokenType = token.COMMA
-	case '+':
-		tok.TokenType = token.PLUS
-	case '-':
-		tok.TokenType = token.MINUS
-	case '/':
-		tok.TokenType = token.SLASH
-	case '*':
-		tok.TokenType = token.ASTERISK
-	case '<':
-		tok.TokenType = token.LT
-	case '>':
-		tok.TokenType = token.GT
-	case '=':
-		peek, _ := lexer.peekRune()
-		if peek == '=' {
-			next := lexer.readRune()
-			tok.Literal += string(next)
-			tok.TokenType = token.EQ
-		} else {
-			tok.TokenType = token.DOUBLE_EQ
-		}
-	case '!':
-		peek, _ := lexer.peekRune()
-		if peek == '=' {
-			next := lexer.readRune()
-			tok.Literal += string(next)
-			tok.TokenType = token.NOT_EQ
-		} else {
-			tok.TokenType = token.BANG
-		}
-	default:
-		if unicode.IsDigit(r) {
-			digits := lexer.readNumber()
-			tok.TokenType = token.NUMBER
-			tok.Literal += digits
-		} else if unicode.IsPunct(r) {
-			tok.TokenType = token.INVALID
-		} else {
-			identifier := string(r) + lexer.readIdentifier()
-			if keywordType, exists := token.Keywords[identifier]; exists {
-				tok.Literal = identifier
-				tok.TokenType = keywordType
-			} else {
-				tok.Literal = identifier
-				tok.TokenType = token.IDENT
-			}
-		}
+		return tok
+	}
+	peek, _ := lexer.peekRune()
+	twoCharPunct := string(r) + string(peek)
+
+	if punctuationType, exists := token.DoubleCharPunctuation[twoCharPunct]; exists {
+		lexer.readRune()
+		tok.TokenType = punctuationType
+		tok.Literal = twoCharPunct
+		return tok
+	}
+	if punctuationType, exists := token.SingleCharPunctuation[r]; exists {
+		tok.TokenType = punctuationType
+		return tok
+	}
+	if unicode.IsDigit(r) {
+		digits := lexer.readNumber()
+		tok.TokenType = token.NUMBER
+		tok.Literal += digits
+		return tok
+	}
+	if unicode.IsPunct(r) || unicode.IsControl(r) {
+		tok.TokenType = token.INVALID
+		return tok
+	}
+
+	phrase := string(r) + lexer.readIdentifier()
+	if keywordType, exists := token.Keywords[phrase]; exists {
+		tok.Literal = phrase
+		tok.TokenType = keywordType
+	} else {
+		tok.Literal = phrase
+		tok.TokenType = token.IDENT
+
 	}
 	return tok
 }
@@ -131,7 +103,9 @@ func (lexer *Lexer) gulp() {
 }
 
 func (lexer *Lexer) readIdentifier() string {
-	return lexer.readWhile(func(r rune) bool { return r == '_' || (!unicode.IsSpace(r) && !unicode.IsPunct(r)) })
+	return lexer.readWhile(func(r rune) bool {
+		return r == '_' || (!unicode.IsSpace(r) && !unicode.IsPunct(r) && r != 0)
+	})
 }
 
 func (lexer *Lexer) readNumber() string {
